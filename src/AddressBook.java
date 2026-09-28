@@ -32,10 +32,10 @@ public class AddressBook {
         AddressBook addressBook = new AddressBook();
 
         BuddyInfo buddy = new BuddyInfo("Homer", "613-555-1234");
-        System.out.println("Buddy before add: " + buddy);
+        System.out.println("Buddy before add...: " + buddy);
 
         addressBook.addBuddy(buddy);  // <-- set the breakpoint on this line
 
-        System.out.println("Address book size: " + addressBook.getSize());
+        System.out.println("Address.. book size: " + addressBook.getSize());
     }
 }
