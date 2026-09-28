@@ -19,6 +19,7 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
+    private Room previousRoom;      // remembers where we came from (for "back")
         
     /**
      * Create the game and initialise its internal map.
@@ -34,7 +35,7 @@ public class Game
      */
     private void createRooms()
     {
-        Room outside, theater, pub, lab, office;
+        Room outside, theater, pub, lab, office, library, cellar;
       
         // create the rooms
         outside = new Room("outside the main entrance of the university");
@@ -42,15 +43,31 @@ public class Game
         pub = new Room("in the campus pub");
         lab = new Room("in a computing lab");
         office = new Room("in the computing admin office");
+        library = new Room("in the university library");
+        cellar = new Room("in a dark cellar under the library");
         
-        // initialise room exits
-        outside.setExits(null, theater, lab, pub);
-        theater.setExits(null, null, null, outside);
-        pub.setExits(null, outside, null, null);
-        lab.setExits(outside, office, null, null);
-        office.setExits(null, null, null, lab);
+        // initialise room exits (one call per exit - setExit is directional)
+        outside.setExit("north", library);
+        outside.setExit("east", theater);
+        outside.setExit("south", lab);
+        outside.setExit("west", pub);
+
+        theater.setExit("west", outside);
+
+        pub.setExit("east", outside);
+
+        lab.setExit("north", outside);
+        lab.setExit("east", office);
+
+        office.setExit("west", lab);
+
+        library.setExit("south", outside);
+        library.setExit("down", cellar);   // new direction!
+
+        cellar.setExit("up", library);     // new direction!
 
         currentRoom = outside;  // start game outside
+        previousRoom = null;
     }
 
     /**
@@ -105,6 +122,9 @@ public class Game
         else if (commandWord.equals("go")) {
             goRoom(command);
         }
+        else if (commandWord.equals("back")) {
+            backRoom();
+        }
         else if (commandWord.equals("quit")) {
             wantToQuit = quit(command);
         }
@@ -125,7 +145,7 @@ public class Game
         System.out.println("around at the university.");
         System.out.println();
         System.out.println("Your command words are:");
-        System.out.println("   go quit help");
+        System.out.println("   go quit help back");
     }
 
     /** 
@@ -143,19 +163,33 @@ public class Game
         String direction = command.getSecondWord();
 
         //Try to leave current room.
-        Room nextRoom = null;
-        nextRoom = currentRoom.getExit(direction);
+        Room nextRoom = currentRoom.getExit(direction);
         
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
         else {
+            previousRoom = currentRoom;   // remember where we came from
             currentRoom = nextRoom;
             printDirection();
-            
         }
     }
 
+    /** 
+     * Take the player back to the room he/she was in before,
+     * if there was one.
+     */
+    private void backRoom() 
+    {
+        if (previousRoom == null) {
+            System.out.println("You haven't moved yet!");
+        }
+        else {
+            currentRoom = previousRoom;
+            previousRoom = null;        // one step back only
+            printDirection();
+        }
+    }
     
     public void printDirection(){
         currentRoom.printLongDescription();
@@ -175,5 +209,13 @@ public class Game
         else {
             return true;  // signal that we want to quit
         }
+    }
+
+    /**
+     * Entry point so the game can be run from IntelliJ or the command line.
+     */
+    public static void main(String[] args) 
+    {
+        new Game().play();
     }
 }

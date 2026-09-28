@@ -6,10 +6,10 @@ import java.util.*;
  * This class is part of the "World of Zuul" application. 
  * "World of Zuul" is a very simple, text based adventure game.  
  *
- * A "Room" represents one location in the scenery of the game.  It is 
- * connected to other rooms via exits.  The exits are labelled north, 
- * east, south, west.  For each direction, the room stores a reference
- * to the neighboring room, or null if there is no exit in that direction.
+ * A "Room" represents one location in the scenery of the game. It is
+ * connected to other rooms via exits, stored in a Map of
+ * direction -> room. New directions (e.g. "up", "down") can be added
+ * without any change to this class.
  * 
  * @author  Michael Kölling and David J. Barnes
  * @version 2016.02.29
@@ -17,9 +17,7 @@ import java.util.*;
 public class Room 
 {
     private String description;
-   // String static final NORTH ="north";
-    private Map<String,Room> exits;
- 
+    private Map<String, Room> exits;
 
     /**
      * Create a room described "description". Initially, it has
@@ -34,56 +32,45 @@ public class Room
     }
 
     /**
-     * Define the exits of this room.  Every direction either leads
-     * to another room or is null (no exit there).
-     * @param north The north exit.
-     * @param east The east east.
-     * @param south The south exit.
-     * @param west The west exit.
+     * Define a single exit of this room in one direction.
+     * @param direction The direction of the exit (e.g. "north", "up").
+     * @param neighbor The room in that direction.
      */
-    public void setExits(Room north, Room east, Room south, Room west) 
+    public void setExit(String direction, Room neighbor) 
     {
-        if(north != null) {
-            exits.put("north", north);
-        }
-        if(east != null) {
-            exits.put("east", east);
-        }
-        if(south != null) {
-            exits.put("south", south);
-        }
-        if(west != null) {
-            exits.put("west", west);
-        }
+        exits.put(direction, neighbor);
     }
 
-    public Room getExit(String direction){
-   
-        return exits.get(direction);
-        
-}
-    public String getDescription()
+    /**
+     * @param direction The direction we want to leave in.
+     * @return The room in the given direction, or null if there is no exit there.
+     */
+    public Room getExit(String direction) 
     {
-         /**
+        return exits.get(direction);
+    }
+
+    /**
      * @return The description of the room.
      */
+    public String getDescription() 
+    {
         return description;
     }
 
-   public void printLongDescription(){
-            System.out.println("You are " + this.getDescription());
-            System.out.print("Exits: ");
-            if(this.getExit("north") != null) {
-                System.out.print("north ");
-            }
-            if(this.getExit("east") != null) {
-                System.out.print("east ");
-            }
-            if(this.getExit("south") != null) {
-                System.out.print("south ");
-            }
-            if(this.getExit("west") != null) {
-                System.out.print("west ");
-            }
-            System.out.println();}
+    /**
+     * Print the room description and its exits.
+     * Uses the Map's keySet(), so it automatically lists every
+     * direction that exists - no changes needed when directions
+     * like "up" and "down" are added.
+     */
+    public void printLongDescription() 
+    {
+        System.out.println("You are " + this.getDescription());
+        System.out.print("Exits: ");
+        for (String direction : exits.keySet()) {
+            System.out.print(direction + " Hello");
+        }
+        System.out.println();
+    }
 }
